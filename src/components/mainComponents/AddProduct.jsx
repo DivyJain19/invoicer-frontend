@@ -21,7 +21,7 @@ const AddProduct = () => {
     try {
       setShowLoader(true);
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/product/getProductList'
+        process.env.REACT_APP_BASE_URL + '/api/product/getProductList'
       );
       const list = res?.data?.data?.productList;
       setProductList(list);
@@ -93,7 +93,7 @@ const AddProduct = () => {
           },
         };
         await axios.post(
-          process.env.REACT_APP_BASE_URL + '/product/addProduct',
+          process.env.REACT_APP_BASE_URL + '/api/product/addProduct',
           inputFields,
           config
         );
@@ -115,7 +115,7 @@ const AddProduct = () => {
     try {
       setShowLoader(true);
       await axios.delete(
-        process.env.REACT_APP_BASE_URL + `/product/deleteProduct/${id}`
+        process.env.REACT_APP_BASE_URL + `/api/product/deleteProduct/${id}`
       );
       await getProductList();
       setShowLoader(false);
@@ -141,7 +141,7 @@ const AddProduct = () => {
           },
         };
         await axios.put(
-          process.env.REACT_APP_BASE_URL + `/product/editProduct/${id}`,
+          process.env.REACT_APP_BASE_URL + `/api/product/editProduct/${id}`,
           editInputFields,
           config
         );

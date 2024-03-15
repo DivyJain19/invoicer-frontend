@@ -35,7 +35,7 @@ const AddEntry = () => {
   const getProductList = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/product/getProductList'
+        process.env.REACT_APP_BASE_URL + '/api/product/getProductList'
       );
       const list = res?.data?.data?.productList;
       setProductList(list);
@@ -54,7 +54,7 @@ const AddEntry = () => {
   const getCompanyList = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/company/getCompanyList'
+        process.env.REACT_APP_BASE_URL + '/api/company/getCompanyList'
       );
       const list = res?.data?.data?.companyList;
       setCompanyList(list);
@@ -215,7 +215,7 @@ const AddEntry = () => {
           },
         };
         const res = await axios.post(
-          process.env.REACT_APP_BASE_URL + '/entry/addEntry',
+          process.env.REACT_APP_BASE_URL + '/api/entry/addEntry',
           obj,
           config
         );
@@ -264,7 +264,7 @@ const AddEntry = () => {
   const getLastEntryDate = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/entry/getLastEntryDate'
+        process.env.REACT_APP_BASE_URL + '/api/entry/getLastEntryDate'
       );
       const originalDateString = res?.data?.data?.date;
       const originalDate = new Date(originalDateString);
@@ -285,7 +285,7 @@ const AddEntry = () => {
       });
     }
   };
-  
+
   useEffect(() => {
     getCompanyList();
     getProductList();

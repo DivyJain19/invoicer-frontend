@@ -96,7 +96,7 @@ const AddCompany = () => {
           },
         };
         const res = await axios.post(
-          process.env.REACT_APP_BASE_URL + '/company/uploadCompanyExcel',
+          process.env.REACT_APP_BASE_URL + '/api/company/uploadCompanyExcel',
           { list: excelData },
           config
         );
@@ -139,7 +139,7 @@ const AddCompany = () => {
     try {
       setShowLoader(true);
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/company/getCompanyList'
+        process.env.REACT_APP_BASE_URL + '/api/company/getCompanyList'
       );
       const list = res?.data?.data?.companyList;
       setCompanyList(list);
@@ -200,7 +200,7 @@ const AddCompany = () => {
           },
         };
         await axios.post(
-          process.env.REACT_APP_BASE_URL + '/company/addCompany',
+          process.env.REACT_APP_BASE_URL + '/api/company/addCompany',
           inputFields,
           config
         );
@@ -223,7 +223,7 @@ const AddCompany = () => {
     try {
       setShowLoader(true);
       await axios.delete(
-        process.env.REACT_APP_BASE_URL + `/company/deleteCompany/${id}`
+        process.env.REACT_APP_BASE_URL + `/api/company/deleteCompany/${id}`
       );
       await getCompanyList();
       setShowLoader(false);
@@ -249,7 +249,7 @@ const AddCompany = () => {
           },
         };
         await axios.put(
-          process.env.REACT_APP_BASE_URL + `/company/editCompany/${id}`,
+          process.env.REACT_APP_BASE_URL + `/api/company/editCompany/${id}`,
           editInputFields,
           config
         );

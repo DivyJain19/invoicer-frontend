@@ -24,7 +24,7 @@ const Invoice = () => {
   const getCompanyList = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/company/getCompanyList'
+        process.env.REACT_APP_BASE_URL + '/api/company/getCompanyList'
       );
       const list = res?.data?.data?.companyList;
       setCompanyList(list);
@@ -51,7 +51,7 @@ const Invoice = () => {
         },
       };
       const res = await axios.post(
-        process.env.REACT_APP_BASE_URL + '/entry/getEntryByCompanyName',
+        process.env.REACT_APP_BASE_URL + '/api/entry/getEntryByCompanyName',
         { company },
         config
       );
@@ -81,7 +81,7 @@ const Invoice = () => {
     try {
       setShowLoader(true);
       await axios.delete(
-        process.env.REACT_APP_BASE_URL + `/entry/deleteEntry/${id}/${entryId}`
+        process.env.REACT_APP_BASE_URL + `/api/entry/deleteEntry/${id}/${entryId}`
       );
       getEntries(company);
       setShowLoader(false);
