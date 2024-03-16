@@ -141,6 +141,7 @@ const AddCompany = () => {
       const res = await axios.get(
         process.env.REACT_APP_BASE_URL + '/api/company/getCompanyList'
       );
+      console.log(res)
       const list = res?.data?.data?.companyList;
       setCompanyList(list);
       setShowLoader(false);

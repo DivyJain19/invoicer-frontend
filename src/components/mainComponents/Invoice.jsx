@@ -105,11 +105,11 @@ const Invoice = () => {
         }
         linkToDownload.href =
           process.env.REACT_APP_BASE_URL +
-          `/entry/generateInvoice/${company}/${fromDate}/${toDate}`;
+          `/api/entry/generateInvoice/${company}/${fromDate}/${toDate}`;
         linkToDownload.click();
       } else {
         linkToDownload.href =
-          process.env.REACT_APP_BASE_URL + `/entry/generateInvoice/${company}`;
+          process.env.REACT_APP_BASE_URL + `/api/entry/generateInvoice/${company}`;
         linkToDownload.click();
       }
     } catch (err) {
