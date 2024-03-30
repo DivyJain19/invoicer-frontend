@@ -32,13 +32,37 @@ const AddEntry = () => {
   const [sellerBrokerage, setSellerBrokerage] = useState('');
   const [addItemsData, setAddItemsData] = useState([]);
 
+  const reOrderProductList = (list) => {
+    const wheatIndex = list.findIndex(
+      (product) => product.product_name === 'Wheat'
+    );
+    const makkaIndex = list.findIndex(
+      (product) => product.product_name === 'Makka'
+    );
+    let productsWithoutWheatAndMakka = list.filter(
+      (product) =>
+        product.product_name !== 'Wheat' && product.product_name !== 'Makka'
+    );
+
+    // Reorder list to place "Wheat" and "Makka" at the beginning
+    let reorderedProductList = [...list];
+    if (wheatIndex !== -1 && makkaIndex !== -1) {
+      reorderedProductList = [
+        list[wheatIndex],
+        list[makkaIndex],
+        ...productsWithoutWheatAndMakka,
+      ];
+    }
+    setProductList(reorderedProductList);
+  };
+
   const getProductList = async () => {
     try {
       const res = await axios.get(
         process.env.REACT_APP_BASE_URL + '/api/product/getProductList'
       );
       const list = res?.data?.data?.productList;
-      setProductList(list);
+      reOrderProductList(list);
     } catch (err) {
       console.log(err);
       toast.error('Something Went Wrong!', {
@@ -286,11 +310,75 @@ const AddEntry = () => {
     }
   };
 
+  const getLastBuyer = async () => {
+    if (companyList.length > 0) {
+      try {
+        const res = await axios.get(
+          process.env.REACT_APP_BASE_URL + '/api/entry/getLastBuyer'
+        );
+        const lastBuyer = res?.data?.data?.buyerName;
+        const index = companyList?.findIndex(
+          (item) => item?.company_name === lastBuyer
+        );
+        let obj = {
+          value: companyList[index].company_name,
+          label: companyList[index].company_name,
+          index: index + 1,
+        };
+        setBuyerDropdown(obj);
+        setBuyer(obj.value);
+      } catch (err) {
+        console.log(err);
+        toast.error('Something Went Wrong!', {
+          position: 'top-center',
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          theme: 'dark',
+        });
+      }
+    }
+  };
+  const getLastSeller = async () => {
+    if (companyList.length > 0) {
+      try {
+        const res = await axios.get(
+          process.env.REACT_APP_BASE_URL + '/api/entry/getLastSeller'
+        );
+        const lastSeller = res?.data?.data?.sellerName;
+        const index = companyList?.findIndex(
+          (item) => item?.company_name === lastSeller
+        );
+        let obj = {
+          value: companyList[index].company_name,
+          label: companyList[index].company_name,
+          index: index + 1,
+        };
+        setSellerDropdown(obj);
+        setSeller(obj?.value);
+      } catch (err) {
+        console.log(err);
+        toast.error('Something Went Wrong!', {
+          position: 'top-center',
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          theme: 'dark',
+        });
+      }
+    }
+  };
+
   useEffect(() => {
     getCompanyList();
     getProductList();
     getLastEntryDate();
   }, []);
+
+  useEffect(() => {
+    getLastBuyer();
+    getLastSeller();
+  }, [companyList]);
 
   return (
     <div>
@@ -462,8 +550,14 @@ const AddEntry = () => {
                   onChange={(data) => {
                     setProduct(data);
                     setProductName(data?.value);
-                    setBuyerBrokerage(data?.buyer_percentage === 0 ? "" : data?.buyer_percentage);
-                    setSellerBrokerage(data?.seller_percentage === 0 ? "" : data?.seller_percentage);
+                    setBuyerBrokerage(
+                      data?.buyer_percentage === 0 ? '' : data?.buyer_percentage
+                    );
+                    setSellerBrokerage(
+                      data?.seller_percentage === 0
+                        ? ''
+                        : data?.seller_percentage
+                    );
                   }}
                   options={productList?.map((option, index) => ({
                     value: option?.product_name,
