@@ -14,6 +14,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const Invoice = () => {
   const [companyList, setCompanyList] = useState([]);
+  const [noOfEntries, setNoOfEntries] = useState(null);
   const [entryList, setEntryList] = useState([]);
   const [showLoader, setShowLoader] = useState(false);
   const [showNotFoundMessage, setShowNotFoundMessage] = useState(false);
@@ -21,6 +22,10 @@ const Invoice = () => {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
 
+  const onChangeBuyer = (selectedVal) => {
+    setCompany(selectedVal?.value);
+    getEntries(selectedVal?.value);
+  };
   const getCompanyList = async () => {
     try {
       const res = await axios.get(
@@ -42,7 +47,7 @@ const Invoice = () => {
   const filterConfig = {
     matchFrom: 'start',
   };
-  async function getEntries(company) {
+  const getEntries = async (company) => {
     try {
       setShowLoader(true);
       const config = {
@@ -50,9 +55,25 @@ const Invoice = () => {
           'Content-type': 'application/json',
         },
       };
+      let endPoint = '/api/entry/getEntryByCompanyName';
+      let postData = { company };
+      if (fromDate && toDate && fromDate !== '' && toDate !== '') {
+        if (fromDate > toDate) {
+          toast.warn('Invalid Date, Showing All Entries', {
+            position: 'top-center',
+            autoClose: 5000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            theme: 'dark',
+          });
+        } else {
+          endPoint = `/api/entry/getEntryByCompanyNameAndDate`;
+          postData = { company, fromDate, toDate };
+        }
+      }
       const res = await axios.post(
-        process.env.REACT_APP_BASE_URL + '/api/entry/getEntryByCompanyName',
-        { company },
+        process.env.REACT_APP_BASE_URL + endPoint,
+        postData,
         config
       );
       setEntryList(res?.data?.data?.entryList);
@@ -66,10 +87,46 @@ const Invoice = () => {
       setShowLoader(false);
       console.log(err);
     }
-  }
-  const onChangeBuyer = (selectedVal) => {
-    setCompany(selectedVal?.value);
-    getEntries(selectedVal?.value);
+  };
+  const getAllEntries = async () => {
+    try {
+      setShowLoader(true);
+      const config = {
+        headers: {
+          'Content-type': 'application/json',
+        },
+      };
+      if (fromDate && toDate && fromDate !== '' && toDate !== '') {
+        if (fromDate > toDate) {
+          toast.warn('Invalid Date, Showing All Entries', {
+            position: 'top-center',
+            autoClose: 5000,
+            hideProgressBar: true,
+            closeOnClick: true,
+            theme: 'dark',
+          });
+        } else {
+          const res = await axios.post(
+            process.env.REACT_APP_BASE_URL + `/api/entry/getAllEntriesByDate`,
+            { fromDate, toDate },
+            config
+          );
+          setEntryList(res?.data?.data?.entryList);
+          if (res?.data?.data?.entryList.length > 0) {
+            setShowNotFoundMessage(false);
+          } else {
+            setShowNotFoundMessage(true);
+          }
+          setShowLoader(false);
+         
+        }
+      }else{
+        setShowLoader(false);
+      }
+    } catch (err) {
+      setShowLoader(false);
+      console.log(err);
+    }
   };
   const formatDate = (date) => {
     const dateObj = new Date(date);
@@ -81,7 +138,8 @@ const Invoice = () => {
     try {
       setShowLoader(true);
       await axios.delete(
-        process.env.REACT_APP_BASE_URL + `/api/entry/deleteEntry/${id}/${entryId}`
+        process.env.REACT_APP_BASE_URL +
+          `/api/entry/deleteEntry/${id}/${entryId}`
       );
       getEntries(company);
       setShowLoader(false);
@@ -109,7 +167,8 @@ const Invoice = () => {
         linkToDownload.click();
       } else {
         linkToDownload.href =
-          process.env.REACT_APP_BASE_URL + `/api/entry/generateInvoice/${company}`;
+          process.env.REACT_APP_BASE_URL +
+          `/api/entry/generateInvoice/${company}`;
         linkToDownload.click();
       }
     } catch (err) {
@@ -123,14 +182,43 @@ const Invoice = () => {
       });
     }
   };
+  const getTotalEntries = async () => {
+    try {
+      const res = await axios.get(
+        process.env.REACT_APP_BASE_URL + '/api/entry/getTotalEntries'
+      );
+      const num = res?.data?.data?.noOfEntries;
+      setNoOfEntries(num);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
     getCompanyList();
+    getTotalEntries();
   }, []);
+
+  useEffect(() => {
+    if (company) {
+      getEntries(company);
+    } else {
+      getAllEntries();
+    }
+  }, [fromDate, toDate]);
+
+  useEffect(() => {
+    getTotalEntries();
+  }, [company]);
 
   return (
     <div className="scroll-page">
       <PageHeading heading={'Invoice'} />
+      {noOfEntries > 0 && (
+        <p>
+          <b>Total Entries :</b> {noOfEntries}
+        </p>
+      )}
       <label className="mb-1">Company</label>
       <div className="d-flex align-items-center justify-content-between ">
         <div className="d-flex align-items-center">
