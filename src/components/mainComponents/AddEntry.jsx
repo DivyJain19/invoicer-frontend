@@ -13,6 +13,7 @@ import Table from 'react-bootstrap/Table';
 import Form from 'react-bootstrap/Form';
 import { MdDelete } from 'react-icons/md';
 import dayjs from 'dayjs';
+import Spinner from 'react-bootstrap/Spinner';
 
 const AddEntry = () => {
   const [productList, setProductList] = useState([]);
@@ -31,6 +32,7 @@ const AddEntry = () => {
   const [buyerBrokerage, setBuyerBrokerage] = useState('');
   const [sellerBrokerage, setSellerBrokerage] = useState('');
   const [addItemsData, setAddItemsData] = useState([]);
+  const [showSaveLoader , setShowSaveLoader] = useState(false);
 
   const reOrderProductList = (list) => {
     const wheatIndex = list.findIndex(
@@ -109,8 +111,10 @@ const AddEntry = () => {
   };
 
   const onChangeDate = (e) => {
+    console.log(e)
     const dateObj = new Date(e);
     setDate(dateObj);
+    console.log("final",new Date(dateObj));
     const year = dateObj.getFullYear();
     const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
     const day = dateObj.getDate().toString().padStart(2, '0');
@@ -227,6 +231,7 @@ const AddEntry = () => {
       });
     } else {
       try {
+        setShowSaveLoader(true);
         let obj = {
           buyer_name: buyer,
           seller_name: seller,
@@ -263,6 +268,9 @@ const AddEntry = () => {
           setBuyerBrokerage('');
           setSellerBrokerage('');
           setAddItemsData([]);
+          getLastBuyer();
+          getLastSeller();
+          setShowSaveLoader(false);
         } else {
           toast.warn('Something went wrong!', {
             position: 'top-center',
@@ -271,9 +279,11 @@ const AddEntry = () => {
             closeOnClick: true,
             theme: 'dark',
           });
+          setShowSaveLoader(false);
         }
       } catch (err) {
         console.log(err);
+        setShowSaveLoader(false);
         toast.warn('Something went wrong!', {
           position: 'top-center',
           autoClose: 5000,
@@ -339,6 +349,7 @@ const AddEntry = () => {
       }
     }
   };
+
   const getLastSeller = async () => {
     if (companyList.length > 0) {
       try {
@@ -647,8 +658,9 @@ const AddEntry = () => {
               border: '0.5px solid black',
             }}
             onClick={postEntries}
+            disabled={showSaveLoader}
           >
-            Save
+            {showSaveLoader ?  <Spinner animation="border" variant="dark" /> : "Save"}
           </button>
         </div>
       </div>
