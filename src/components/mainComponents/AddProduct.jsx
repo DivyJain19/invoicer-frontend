@@ -4,13 +4,14 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { IoMdAddCircle } from 'react-icons/io';
 import { MdDelete, MdEdit } from 'react-icons/md';
-import { ImCross } from "react-icons/im";
+import { ImCross } from 'react-icons/im';
 import { FaCheck } from 'react-icons/fa';
 import Form from 'react-bootstrap/Form';
 import Spinner from 'react-bootstrap/Spinner';
 import PageHeading from '../helpers/PageHeading';
 
 const AddProduct = () => {
+  const userData = JSON.parse(localStorage.getItem('userInfo'));
   const [productList, setProductList] = useState([]);
   const [inputFields, setInputFields] = useState({});
   const [editInputFields, setEditInputFields] = useState({});
@@ -21,7 +22,8 @@ const AddProduct = () => {
     try {
       setShowLoader(true);
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/api/product/getProductList'
+        process.env.REACT_APP_BASE_URL +
+          `/api/product/getProductList/${userData?.userId}`
       );
       const list = res?.data?.data?.productList;
       setProductList(list);
@@ -93,7 +95,8 @@ const AddProduct = () => {
           },
         };
         await axios.post(
-          process.env.REACT_APP_BASE_URL + '/api/product/addProduct',
+          process.env.REACT_APP_BASE_URL +
+            `/api/product/addProduct/${userData?.userId}`,
           inputFields,
           config
         );
@@ -115,7 +118,8 @@ const AddProduct = () => {
     try {
       setShowLoader(true);
       await axios.delete(
-        process.env.REACT_APP_BASE_URL + `/api/product/deleteProduct/${id}`
+        process.env.REACT_APP_BASE_URL +
+          `/api/product/deleteProduct/${id}/${userData?.userId}`
       );
       await getProductList();
       setShowLoader(false);
@@ -141,7 +145,8 @@ const AddProduct = () => {
           },
         };
         await axios.put(
-          process.env.REACT_APP_BASE_URL + `/api/product/editProduct/${id}`,
+          process.env.REACT_APP_BASE_URL +
+            `/api/product/editProduct/${id}/${userData?.userId}`,
           editInputFields,
           config
         );
@@ -338,7 +343,7 @@ const AddProduct = () => {
                           onChange={onChangeProductEditInput}
                         />
                       </td>
-                      <td style={{verticalAlign:"middle"}}>
+                      <td style={{ verticalAlign: 'middle' }}>
                         <div className="d-flex justify-content-between  align-items-center">
                           <FaCheck
                             size={18}

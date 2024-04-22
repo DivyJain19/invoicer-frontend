@@ -13,6 +13,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const Invoice = () => {
+  const userData = JSON.parse(localStorage.getItem('userInfo'));
+
   const [companyList, setCompanyList] = useState([]);
   const [noOfEntries, setNoOfEntries] = useState(null);
   const [entryList, setEntryList] = useState([]);
@@ -29,7 +31,8 @@ const Invoice = () => {
   const getCompanyList = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/api/company/getCompanyList'
+        process.env.REACT_APP_BASE_URL +
+          `/api/company/getCompanyList/${userData?.userId}`
       );
       const list = res?.data?.data?.companyList;
       setCompanyList(list);
@@ -55,7 +58,7 @@ const Invoice = () => {
           'Content-type': 'application/json',
         },
       };
-      let endPoint = '/api/entry/getEntryByCompanyName';
+      let endPoint = `/api/entry/getEntryByCompanyName/${userData?.userId}`;
       let postData = { company };
       if (fromDate && toDate && fromDate !== '' && toDate !== '') {
         if (fromDate > toDate) {
@@ -67,7 +70,7 @@ const Invoice = () => {
             theme: 'dark',
           });
         } else {
-          endPoint = `/api/entry/getEntryByCompanyNameAndDate`;
+          endPoint = `/api/entry/getEntryByCompanyNameAndDate/${userData?.userId}`;
           postData = { company, fromDate, toDate };
         }
       }
@@ -107,7 +110,8 @@ const Invoice = () => {
           });
         } else {
           const res = await axios.post(
-            process.env.REACT_APP_BASE_URL + `/api/entry/getAllEntriesByDate`,
+            process.env.REACT_APP_BASE_URL +
+              `/api/entry/getAllEntriesByDate/${userData?.userId}`,
             { fromDate, toDate },
             config
           );
@@ -118,9 +122,8 @@ const Invoice = () => {
             setShowNotFoundMessage(true);
           }
           setShowLoader(false);
-         
         }
-      }else{
+      } else {
         setShowLoader(false);
       }
     } catch (err) {
@@ -139,7 +142,7 @@ const Invoice = () => {
       setShowLoader(true);
       await axios.delete(
         process.env.REACT_APP_BASE_URL +
-          `/api/entry/deleteEntry/${id}/${entryId}`
+          `/api/entry/deleteEntry/${id}/${entryId}/${userData?.userId}`
       );
       getEntries(company);
       setShowLoader(false);
@@ -163,12 +166,12 @@ const Invoice = () => {
         }
         linkToDownload.href =
           process.env.REACT_APP_BASE_URL +
-          `/api/entry/generateInvoice/${company}/${fromDate}/${toDate}`;
+          `/api/entry/generateInvoice/${company}/${fromDate}/${toDate}/${userData?.userId}`;
         linkToDownload.click();
       } else {
         linkToDownload.href =
           process.env.REACT_APP_BASE_URL +
-          `/api/entry/generateInvoice/${company}`;
+          `/api/entry/generateInvoice/${company}/${userData?.userId}`;
         linkToDownload.click();
       }
     } catch (err) {
@@ -185,7 +188,8 @@ const Invoice = () => {
   const getTotalEntries = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/api/entry/getTotalEntries'
+        process.env.REACT_APP_BASE_URL +
+          `/api/entry/getTotalEntries/${userData?.userId}`
       );
       const num = res?.data?.data?.noOfEntries;
       setNoOfEntries(num);

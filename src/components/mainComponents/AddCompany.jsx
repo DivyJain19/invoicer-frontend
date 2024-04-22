@@ -25,6 +25,7 @@ const AddCompany = () => {
   const [excelData, setExcelData] = useState([]);
 
   const hiddenFileInput = useRef(null);
+  const userData = JSON.parse(localStorage.getItem('userInfo'));
 
   const handleClick = () => {
     hiddenFileInput.current.click();
@@ -96,7 +97,8 @@ const AddCompany = () => {
           },
         };
         const res = await axios.post(
-          process.env.REACT_APP_BASE_URL + '/api/company/uploadCompanyExcel',
+          process.env.REACT_APP_BASE_URL +
+            `/api/company/uploadCompanyExcel/${userData?.userId}`,
           { list: excelData },
           config
         );
@@ -139,9 +141,9 @@ const AddCompany = () => {
     try {
       setShowLoader(true);
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/api/company/getCompanyList'
+        process.env.REACT_APP_BASE_URL +
+          `/api/company/getCompanyList/${userData?.userId}`
       );
-      console.log(res)
       const list = res?.data?.data?.companyList;
       setCompanyList(list);
       setShowLoader(false);
@@ -201,7 +203,8 @@ const AddCompany = () => {
           },
         };
         await axios.post(
-          process.env.REACT_APP_BASE_URL + '/api/company/addCompany',
+          process.env.REACT_APP_BASE_URL +
+            `/api/company/addCompany/${userData?.userId}`,
           inputFields,
           config
         );
@@ -224,7 +227,8 @@ const AddCompany = () => {
     try {
       setShowLoader(true);
       await axios.delete(
-        process.env.REACT_APP_BASE_URL + `/api/company/deleteCompany/${id}`
+        process.env.REACT_APP_BASE_URL +
+          `/api/company/deleteCompany/${id}/${userData?.userId}`
       );
       await getCompanyList();
       setShowLoader(false);
@@ -250,7 +254,8 @@ const AddCompany = () => {
           },
         };
         await axios.put(
-          process.env.REACT_APP_BASE_URL + `/api/company/editCompany/${id}`,
+          process.env.REACT_APP_BASE_URL +
+            `/api/company/editCompany/${id}/${userData?.userId}`,
           editInputFields,
           config
         );
@@ -333,7 +338,7 @@ const AddCompany = () => {
       </Table>
       <div className="d-flex">
         <p style={{ fontWeight: 'bolder' }}>Company List</p>
-        <span className='mx-1'>({companyList?.length} Companies)</span>
+        <span className="mx-1">({companyList?.length} Companies)</span>
       </div>
       <div className="table-container">
         {!showLoader ? (

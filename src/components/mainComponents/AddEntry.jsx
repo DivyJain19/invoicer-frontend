@@ -16,6 +16,7 @@ import dayjs from 'dayjs';
 import Spinner from 'react-bootstrap/Spinner';
 
 const AddEntry = () => {
+  const userData = JSON.parse(localStorage.getItem('userInfo'));
   const [productList, setProductList] = useState([]);
   const [companyList, setCompanyList] = useState([]);
   const [buyer, setBuyer] = useState('');
@@ -32,16 +33,16 @@ const AddEntry = () => {
   const [buyerBrokerage, setBuyerBrokerage] = useState('');
   const [sellerBrokerage, setSellerBrokerage] = useState('');
   const [addItemsData, setAddItemsData] = useState([]);
-  const [showSaveLoader , setShowSaveLoader] = useState(false);
+  const [showSaveLoader, setShowSaveLoader] = useState(false);
 
   const reOrderProductList = (list) => {
-    const wheatIndex = list.findIndex(
+    const wheatIndex = list?.findIndex(
       (product) => product.product_name === 'Wheat'
     );
-    const makkaIndex = list.findIndex(
+    const makkaIndex = list?.findIndex(
       (product) => product.product_name === 'Makka'
     );
-    let productsWithoutWheatAndMakka = list.filter(
+    let productsWithoutWheatAndMakka = list?.filter(
       (product) =>
         product.product_name !== 'Wheat' && product.product_name !== 'Makka'
     );
@@ -61,7 +62,8 @@ const AddEntry = () => {
   const getProductList = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/api/product/getProductList'
+        process.env.REACT_APP_BASE_URL +
+          `/api/product/getProductList/${userData?.userId}`
       );
       const list = res?.data?.data?.productList;
       reOrderProductList(list);
@@ -80,9 +82,11 @@ const AddEntry = () => {
   const getCompanyList = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/api/company/getCompanyList'
+        process.env.REACT_APP_BASE_URL +
+          `/api/company/getCompanyList/${userData?.userId}`
       );
       const list = res?.data?.data?.companyList;
+      console.log(list);
       setCompanyList(list);
     } catch (err) {
       console.log(err);
@@ -111,10 +115,10 @@ const AddEntry = () => {
   };
 
   const onChangeDate = (e) => {
-    console.log(e)
+    console.log(e);
     const dateObj = new Date(e);
     setDate(dateObj);
-    console.log("final",new Date(dateObj));
+    console.log('final', new Date(dateObj));
     const year = dateObj.getFullYear();
     const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
     const day = dateObj.getDate().toString().padStart(2, '0');
@@ -244,7 +248,8 @@ const AddEntry = () => {
           },
         };
         const res = await axios.post(
-          process.env.REACT_APP_BASE_URL + '/api/entry/addEntry',
+          process.env.REACT_APP_BASE_URL +
+            `/api/entry/addEntry/${userData?.userId}`,
           obj,
           config
         );
@@ -298,7 +303,8 @@ const AddEntry = () => {
   const getLastEntryDate = async () => {
     try {
       const res = await axios.get(
-        process.env.REACT_APP_BASE_URL + '/api/entry/getLastEntryDate'
+        process.env.REACT_APP_BASE_URL +
+          `/api/entry/getLastEntryDate/${userData?.userId}`
       );
       const originalDateString = res?.data?.data?.date;
       const originalDate = new Date(originalDateString);
@@ -324,7 +330,8 @@ const AddEntry = () => {
     if (companyList.length > 0) {
       try {
         const res = await axios.get(
-          process.env.REACT_APP_BASE_URL + '/api/entry/getLastBuyer'
+          process.env.REACT_APP_BASE_URL +
+            `/api/entry/getLastBuyer/${userData?.userId}`
         );
         const lastBuyer = res?.data?.data?.buyerName;
         const index = companyList?.findIndex(
@@ -354,7 +361,8 @@ const AddEntry = () => {
     if (companyList.length > 0) {
       try {
         const res = await axios.get(
-          process.env.REACT_APP_BASE_URL + '/api/entry/getLastSeller'
+          process.env.REACT_APP_BASE_URL +
+            `/api/entry/getLastSeller/${userData?.userId}`
         );
         const lastSeller = res?.data?.data?.sellerName;
         const index = companyList?.findIndex(
@@ -407,7 +415,7 @@ const AddEntry = () => {
             isSearchable={true}
             filterOption={createFilter(filterConfig)}
             options={companyList
-              .filter((option) => {
+              ?.filter((option) => {
                 return option?.company_name !== seller;
               })
               .map((option, index) => ({
@@ -660,7 +668,11 @@ const AddEntry = () => {
             onClick={postEntries}
             disabled={showSaveLoader}
           >
-            {showSaveLoader ?  <Spinner animation="border" variant="dark" /> : "Save"}
+            {showSaveLoader ? (
+              <Spinner animation="border" variant="dark" />
+            ) : (
+              'Save'
+            )}
           </button>
         </div>
       </div>
