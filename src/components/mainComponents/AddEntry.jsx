@@ -86,7 +86,6 @@ const AddEntry = () => {
           `/api/company/getCompanyList/${userData?.userId}`
       );
       const list = res?.data?.data?.companyList;
-      console.log(list);
       setCompanyList(list);
     } catch (err) {
       console.log(err);
@@ -115,10 +114,8 @@ const AddEntry = () => {
   };
 
   const onChangeDate = (e) => {
-    console.log(e);
     const dateObj = new Date(e);
     setDate(dateObj);
-    console.log('final', new Date(dateObj));
     const year = dateObj.getFullYear();
     const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
     const day = dateObj.getDate().toString().padStart(2, '0');
@@ -253,7 +250,6 @@ const AddEntry = () => {
           obj,
           config
         );
-        console.log(res);
         if (res.data.data.message === 'Success') {
           toast.success('Entry Added Successfully', {
             position: 'top-center',
@@ -338,8 +334,8 @@ const AddEntry = () => {
           (item) => item?.company_name === lastBuyer
         );
         let obj = {
-          value: companyList[index].company_name,
-          label: companyList[index].company_name,
+          value: companyList[index]?.company_name,
+          label: companyList[index]?.company_name,
           index: index + 1,
         };
         setBuyerDropdown(obj);
@@ -369,8 +365,8 @@ const AddEntry = () => {
           (item) => item?.company_name === lastSeller
         );
         let obj = {
-          value: companyList[index].company_name,
-          label: companyList[index].company_name,
+          value: companyList[index]?.company_name,
+          label: companyList[index]?.company_name,
           index: index + 1,
         };
         setSellerDropdown(obj);
