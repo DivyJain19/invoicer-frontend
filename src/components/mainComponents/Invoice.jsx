@@ -11,6 +11,7 @@ import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import Form from 'react-bootstrap/Form';
 
 const Invoice = () => {
   const userData = JSON.parse(localStorage.getItem('userInfo'));
@@ -23,6 +24,8 @@ const Invoice = () => {
   const [company, setCompany] = useState(null);
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
+  const [showCustomDetailsFields, setShowCustomDetailsFields] = useState(false);
+  const [invoiceDetails, setInvoiceDetails] = useState({});
 
   const onChangeBuyer = (selectedVal) => {
     setCompany(selectedVal?.value);
@@ -159,21 +162,48 @@ const Invoice = () => {
   };
   const generateInvoice = async () => {
     try {
+      let url = '';
       var linkToDownload = document.createElement('a');
       if (fromDate && toDate) {
         if (fromDate > toDate) {
           throw new Error('Invalid Date');
         }
-        linkToDownload.href =
+        url =
           process.env.REACT_APP_BASE_URL +
           `/api/entry/generateInvoice/${company}/${fromDate}/${toDate}/${userData?.userId}`;
-        linkToDownload.click();
       } else {
-        linkToDownload.href =
+        url =
           process.env.REACT_APP_BASE_URL +
           `/api/entry/generateInvoice/${company}/${userData?.userId}`;
-        linkToDownload.click();
       }
+      const requestData =
+        showCustomDetailsFields && invoiceDetails ? { invoiceDetails } : {};
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.blob();
+        })
+        .then((blob) => {
+          // Create a URL for the blob
+          var url = window.URL.createObjectURL(blob);
+          // Set the href attribute of the link to the URL
+          linkToDownload.href = url;
+          // Set the filename for the downloaded file
+          linkToDownload.download = `${company}_invoice_.pdf`;
+          // Click the link to initiate download
+          linkToDownload.click();
+        })
+        .catch((error) => {
+          console.error('There was a problem with the fetch operation:', error);
+        });
     } catch (err) {
       console.log(err);
       toast.warn(err.message, {
@@ -198,6 +228,12 @@ const Invoice = () => {
     }
   };
 
+  const handleInvoiceDetailsChange = (e) => {
+    setInvoiceDetails((prev) => {
+      return { ...prev, [e.target.name]: e.target.value };
+    });
+  };
+
   useEffect(() => {
     getCompanyList();
     getTotalEntries();
@@ -211,10 +247,6 @@ const Invoice = () => {
     }
   }, [fromDate, toDate]);
 
-  useEffect(() => {
-    getTotalEntries();
-  }, [company]);
-
   return (
     <div className="scroll-page">
       <PageHeading heading={'Invoice'} />
@@ -223,6 +255,75 @@ const Invoice = () => {
           <b>Total Entries :</b> {noOfEntries}
         </p>
       )}
+      {/* Custom Fields */}
+      <div className="mb-2">
+        <div className="mb-1 d-flex align-items-center">
+          <label>
+            <b>Custom Invoice</b>
+          </label>
+          <input
+            type="checkbox"
+            onChange={(e) => {
+              setShowCustomDetailsFields(e.target.checked);
+            }}
+            checked={showCustomDetailsFields}
+            style={{ margin: '0 0.8rem' }}
+          />
+        </div>
+        {showCustomDetailsFields && (
+          <div className="d-flex align-items-center">
+            <div style={{ width: '100%' }}>
+              <label className="mb-2">Name</label>
+              <Form.Control
+                type="text"
+                name="name"
+                onChange={(e) => handleInvoiceDetailsChange(e)}
+                style={{
+                  borderRadius: '1px',
+                }}
+                placeholder="Name"
+              />
+            </div>
+            <div style={{ width: '100%', marginLeft: '1rem' }}>
+              <label className="mb-2">Address</label>
+              <Form.Control
+                type="text"
+                name="address"
+                onChange={(e) => handleInvoiceDetailsChange(e)}
+                style={{
+                  borderRadius: '1px',
+                }}
+                placeholder="Address"
+              />
+            </div>
+            <div style={{ width: '100%', marginLeft: '1rem' }}>
+              <label className="mb-2">Phone Number</label>
+              <Form.Control
+                type="number"
+                name="phone"
+                onChange={(e) => handleInvoiceDetailsChange(e)}
+                style={{
+                  borderRadius: '1px',
+                }}
+                placeholder="Phone No."
+              />
+            </div>
+            <div style={{ width: '100%', marginLeft: '1rem' }}>
+              <label className="mb-2">Pan Number</label>
+              <Form.Control
+                type="text"
+                name="pan"
+                onChange={(e) => handleInvoiceDetailsChange(e)}
+                style={{
+                  borderRadius: '1px',
+                }}
+                placeholder="Pan No."
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
       <label className="mb-1">Company</label>
       <div className="d-flex align-items-center justify-content-between ">
         <div className="d-flex align-items-center">

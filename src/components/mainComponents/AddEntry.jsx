@@ -65,7 +65,7 @@ const AddEntry = () => {
         process.env.REACT_APP_BASE_URL +
           `/api/product/getProductList/${userData?.userId}`
       );
-      const list = res?.data?.data?.productList;
+      const list = res?.data?.data?.productList ? res?.data?.data?.productList : [];
       reOrderProductList(list);
     } catch (err) {
       console.log(err);
