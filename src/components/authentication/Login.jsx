@@ -125,13 +125,13 @@ const Login = () => {
             )}
           </div>
         </Form>
-        {/* <p className="mt-2 text-center">
+        <p className="mt-2 text-center">
           Don't have a account?
           <Link style={{ color: 'var(--primary-color)' }} to="signup">
             {' '}
             Sign up
           </Link>
-        </p> */}
+        </p>
       </div>
     </div>
   );
